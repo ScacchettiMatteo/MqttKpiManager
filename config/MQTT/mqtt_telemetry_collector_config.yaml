@@ -1,0 +1,8 @@
+client_id: "client_id01"
+broker_address: "155.185.228.20"
+broker_port: 7883
+mqtt_username: "271678@studenti.unimore.it"
+mqtt_password: "mowxkleuerkwwkuz"
+base_topic: "/iot/user/271678@studenti.unimore.it"
+telemetry_topic: "/telemetry"
+action_topic: "/action/result"
