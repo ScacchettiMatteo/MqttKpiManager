@@ -16,6 +16,8 @@ class MqttTelemetryCollector:
     _STR_BROKER_PORT = "broker_port"
     _STR_MQTT_USERNAME = "mqtt_username"
     _STR_MQTT_PASSWORD = "mqtt_password"
+    _STR_QOS_PUBLISH = "qos_publish"
+    _STR_QOS_SUBSCRIBE = "qos_subscribe"
     _STR_BASE_TOPIC = "base_topic"
     _STR_TELEMETRY_TOPIC = "telemetry_topic"
     _STR_ACTION_TOPIC = "action_topic"
@@ -68,6 +70,18 @@ class MqttTelemetryCollector:
             logging.warning("Broker password is not specified")
             self._mqtt_password = None
 
+        if self._STR_QOS_PUBLISH in self._mapper and self._mapper[self._STR_QOS_PUBLISH] is not None:
+            self._qos_publish = self._mapper[self._STR_QOS_PUBLISH]
+        else:
+            logging.warning("Qos publish is not specified")
+            self._qos_publish = 0
+
+        if self._STR_QOS_SUBSCRIBE in self._mapper and self._mapper[self._STR_QOS_SUBSCRIBE] is not None:
+            self._qos_subscribe = self._mapper[self._STR_QOS_SUBSCRIBE]
+        else:
+            logging.warning("Qos subscribe is not specified")
+            self._qos_subscribe = 0
+
         if self._STR_BASE_TOPIC in self._mapper and self._mapper[self._STR_BASE_TOPIC] is not None:
             self._mqtt_basic_topic = self._mapper[self._STR_BASE_TOPIC]
         else:
@@ -90,13 +104,6 @@ class MqttTelemetryCollector:
 
     def on_connect(self, client, userdata, flags, rc):
         logging.info("Client " + str(self._client_id) + " connected with result code " + str(rc))
-
-        topic = "/iot/user/271678@studenti.unimore.it/fum/hz_lab_mn/plcs/plc_ts17/sensors/+/auxiliaries/telemetry"
-        topic2 = "/iot/user/271678@studenti.unimore.it/fum/hz_lab_mn/plcs/plc_ts17/states/+/object_present/telemetry"
-        logging.info(f"Subscribed to topic: {topic}")
-        self._mqtt_client.subscribe(topic, qos=2)
-        logging.info(f"Subscribed to topic: {topic2}")
-        self._mqtt_client.subscribe(topic2, qos=2)
 
     def on_disconnect(self, client, userdata, rc):
         logging.info("Client " + str(self._client_id) + " disconnected with result code " + str(rc))
@@ -135,13 +142,14 @@ class MqttTelemetryCollector:
     def set_mqtt_password(self, mqtt_password):
         self._mqtt_password = mqtt_password
 
-    def publish_senml_pack(self, topic, pack, qos=2):
+    def publish_senml_pack(self, topic, pack, retained=False):
         payload = pack.senml_pack_toString()
-        self._mqtt_client.publish(topic, payload, qos=qos)
+        self._mqtt_client.publish(topic, payload, qos=self._qos_publish, retain=retained)
         logging.info(f"Publish to topic: {topic} message: {payload}")
 
-    def subscribe_topic(self, topic, qos=2):
-        self._mqtt_client.subscribe(topic, qos=qos)
+    def subscribe_topic(self, topic):
+        self._mqtt_client.subscribe(topic, qos=self._qos_subscribe)
+        logging.info(f"Subscribe to topic: {topic}")
 
     def stop(self):
         self._mqtt_client.loop_stop()

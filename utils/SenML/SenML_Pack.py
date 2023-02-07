@@ -1,7 +1,7 @@
 import json
 import logging
-import senml
 from error.mqtt.senml_format_error import SenmlFormatError
+from utils.SenML.SenML_Record import SenMLRecord
 
 
 class SenMLPack:
@@ -13,29 +13,32 @@ class SenMLPack:
         self._senMLPack = senMLPack
 
     def get_senml_pack(self):
-        return senml.SenMLDocument(measurements=self._senMLPack)
+        return self._senMLPack
 
-    def insert_senml_record(self, name=None, time=None, value=None, unit=None):
-        record = senml.SenMLMeasurement()
+    def insert_senml_record(self, version=None, name=None, time=None, value=None, unit=None):
+        record = SenMLRecord()
+        if version is not None:
+            record.set_bver(version)
         if name is not None:
-            record.name = name
+            record.set_bn(name)
         if time is not None:
-            record.time = time
+            record.set_bt(time)
         if value is not None:
-            record.value = value
+            record.set_v(value)
         if unit is not None:
-            record.unit = unit
+            record.set_u(unit)
         self._senMLPack.append(record)
 
     def senml_pack_toString(self):
-        message = senml.SenMLDocument(measurements=self._senMLPack)
-        return json.dumps(message.to_json())
+        return json.dumps(self._senMLPack,
+                          default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value),
+                          sort_keys=False,
+                          allow_nan=False)
 
     def string_to_senml_pack(self, payload):
         try:
-            pack = senml.SenMLDocument.from_json(json.loads(payload))
-            self._senMLPack = pack.measurements
-            if len(pack.measurements) <= 0:
+            self._senMLPack = json.loads(payload)
+            if len(self._senMLPack) <= 0:
                 logging.warning("Senml pack is empty")
         except Exception as e:
             logging.error(str(e))

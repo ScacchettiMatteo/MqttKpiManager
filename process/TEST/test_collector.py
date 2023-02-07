@@ -13,8 +13,8 @@ collector.subscribe_topic(topic2)
 
 for i in range(1000):
     pack = SenMLPack()
-    pack.insert_senml_record("TEST", time.time(), i, "u")
-    collector.publish_senml_pack(pub_topic, pack, qos=2)
+    pack.insert_senml_record(1, "TEST", time.time(), i, "u")
+    collector.publish_senml_pack(pub_topic, pack)
     time.sleep(5)
 
 collector.stop()
