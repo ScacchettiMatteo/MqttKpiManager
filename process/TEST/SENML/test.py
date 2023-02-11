@@ -1,16 +1,23 @@
 import time
 from utils.SenML.SenML_Pack import SenMLPack
+from utils.SenML.SenML_Record import SenMLRecord
 
-pack = SenMLPack()
-pack.insert_senml_record(bver=1, bn="TEST", bt=time.time(), u="u", v=1)
-pack.insert_senml_record(bver=1, bn="TEST", bt=time.time(), u="u", v=1)
+pack = SenMLPack("test", 10)
+record = SenMLRecord()
+record.set_bn("NAME:")
+record.set_v(10)
+record2 = SenMLRecord()
+record2.set_n("RISORSA")
+record2.set_v(10)
 
-for record in pack.get_senml_pack():
-    print(record.toJSON())
+pack.insert_senml_record_object(record)
+pack.insert_senml_record_object(record2)
+payload = pack.senml_pack_to_json()
 
-print(pack.senml_pack_toString())
-pack.string_to_senml_pack(pack.senml_pack_toString())
-print(pack.senml_pack_toString())
+pack2 = SenMLPack()
+pack2.json_to_senml_pack(payload)
+print(isinstance(pack2, SenMLPack))
+print(pack2.get_senml_pack())
 
-for record in pack.get_senml_pack():
-    print(record.toJSON())
+for record in pack2.get_senml_pack():
+    print(record.to_json())

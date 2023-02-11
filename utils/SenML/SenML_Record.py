@@ -4,16 +4,18 @@ from collections import namedtuple
 
 class SenMLRecord:
 
-    def __init__(self, bver=None, bn=None, bt=None, bu=None, bv=None, v=None, n=None, u=None, vb=None):
-        self.bver = bver
-        self.bn = bn
-        self.bt = bt
-        self.bu = bu
-        self.bv = bv
-        self.n = n
-        self.v = v
-        self.u = u
-        self.vb = vb
+    def __init__(self, *args):
+        self.bver = None
+        self.bn = None
+        self.bt = None
+        self.bu = None
+        self.bv = None
+        self.n = None
+        self.v = None
+        self.u = None
+        self.vb = None
+        if len(args) > 0 and isinstance(args[0], dict):
+            vars(self).update(args[0])
 
     def get_bn(self):
         return self.bn
@@ -69,13 +71,13 @@ class SenMLRecord:
     def set_vb(self, vb):
         self.vb = vb
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self,
                           default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value),
                           sort_keys=False,
                           allow_nan=False)
 
-    def fromJSON(self, payload):
+    def from_json(self, payload):
         obj = json.loads(str(payload).replace("\'", "\""),
                          object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
 

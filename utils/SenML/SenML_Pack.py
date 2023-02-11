@@ -1,13 +1,14 @@
 import json
-import logging
 from error.mqtt.senml_format_error import SenmlFormatError
 from utils.SenML.SenML_Record import SenMLRecord
 
 
 class SenMLPack:
 
-    def __init__(self):
+    def __init__(self, *args):
         self._senMLPack = []
+        if len(args) > 0 and isinstance(args[0], dict):
+            vars(self).update(args[0])
 
     def get_senml_pack(self):
         return self._senMLPack
@@ -38,29 +39,19 @@ class SenMLPack:
         self._senMLPack.append(record)
 
     def insert_senml_record_object(self, record):
-        if record is SenMLRecord:
+        if type(record) == SenMLRecord:
             self._senMLPack.append(record)
         else:
             raise SenmlFormatError("Object format is not support -- required senml") from None
 
-    def senml_pack_toString(self):
+    def senml_pack_to_json(self):
         return json.dumps(self._senMLPack,
                           default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value),
                           sort_keys=False,
                           allow_nan=False)
 
-    def string_to_senml_pack(self, payload):
-        try:
-            records = json.loads(payload)
-            if len(records) > 0:
-                self._senMLPack = []
-
-                for val in records:
-                    record = SenMLRecord()
-                    record.fromJSON(val)
-                    self._senMLPack.append(record)
-            else:
-                logging.warning("Senml pack is empty")
-        except Exception as e:
-            logging.error(str(e))
-            raise SenmlFormatError("Payload format is not support -- required senml") from None
+    def json_to_senml_pack(self, data):
+        senml_pack = json.loads(data)
+        self._senMLPack = []
+        for senml_record in senml_pack:
+            self._senMLPack.append(json.loads(str(senml_record).replace("'", "\""), object_hook=SenMLRecord))
