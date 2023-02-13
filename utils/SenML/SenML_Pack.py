@@ -39,7 +39,7 @@ class SenMLPack:
         self._senMLPack.append(record)
 
     def insert_senml_record_object(self, record):
-        if type(record) == SenMLRecord:
+        if isinstance(record, SenMLRecord):
             self._senMLPack.append(record)
         else:
             raise SenmlFormatError("Object format is not support -- required senml") from None

@@ -99,6 +99,8 @@ class MqttTelemetryCollector:
         else:
             self._action_topic = "/action/result"
 
+        print(self._mapper)
+
         self._mqtt_client = None
         logging.basicConfig(level=logging.INFO)
 
