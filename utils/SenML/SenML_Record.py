@@ -71,9 +71,12 @@ class SenMLRecord:
     def set_vb(self, vb):
         self.vb = vb
 
+    def __str__(self):
+        return f'SenMLRecord({self.bver},{self.bn},{self.bt},{self.bu},{self.bv},{self.n},{self.v},{self.u},{self.vb})'
+
     def to_json(self):
         return json.dumps(self,
-                          default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value),
+                          default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value is not None),
                           sort_keys=False,
                           allow_nan=False)
 

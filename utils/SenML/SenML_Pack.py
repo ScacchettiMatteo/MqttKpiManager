@@ -46,12 +46,13 @@ class SenMLPack:
 
     def senml_pack_to_json(self):
         return json.dumps(self._senMLPack,
-                          default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value),
+                          default=lambda o: dict((key, value) for key, value in o.__dict__.items() if value is not None),
                           sort_keys=False,
                           allow_nan=False)
 
     def json_to_senml_pack(self, data):
-        senml_pack = json.loads(data)
         self._senMLPack = []
+        senml_pack = json.loads(data)
         for senml_record in senml_pack:
-            self._senMLPack.append(json.loads(str(senml_record).replace("'", "\""), object_hook=SenMLRecord))
+            senml_record = json.dumps(senml_record)
+            self._senMLPack.append(json.loads(senml_record, object_hook=SenMLRecord))

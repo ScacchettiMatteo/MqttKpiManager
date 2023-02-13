@@ -1,3 +1,4 @@
+import json
 
 
 class ResourceModel:
@@ -61,3 +62,10 @@ class ResourceModel:
 
     def set_value(self, value):
         self.value = value
+
+    def __str__(self):
+        return f'ResourceModel({self.uuid},{self.version},{self.unit},{self.topic},{self.qos},{self.retained},{self.frequency},{self.value})'
+
+    @staticmethod
+    def object_mapping(dictionary):
+        return json.loads(json.dumps(dictionary), object_hook=ResourceModel)

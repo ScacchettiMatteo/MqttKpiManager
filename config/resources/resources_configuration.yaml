@@ -1,77 +1,97 @@
 resources:
-  6_pose:
-    read_topic: "machine_id_address/publish"
-    unit: null
-    write_topic: null
-  device_info_address:
-    read_topic: "device_info_address/publish"
-    unit: null
-    write_topic: null
-  device_configuration_address:
-    read_topic: "device_configuration_address/publish"
-    unit: null
-    write_topic: "device_configuration_address/command"
-  transducer_ratio:
-    read_topic: "transducer_ratio/publish"
-    unit: null
-    write_topic: "transducer_ratio/command"
-  active_power_line_phase1_address:
-    read_topic: "active_power_line_phase1_address/publish"
-    unit: "W"
-    write_topic: null
-  active_power_line_phase2_address:
-    read_topic: "active_power_line_phase2_address/publish"
-    unit: "W"
-    write_topic: null
-  active_power_line_phase3_address:
-    read_topic: "active_power_line_phase3_address/publish"
-    unit: "W"
-    write_topic: null
-  reactive_power_line_phase1_address:
-    read_topic: "reactive_power_line_phase1_address/publish"
-    unit: "W"
-    write_topic: null
-  reactive_power_line_phase2_address:
-    read_topic: "reactive_power_line_phase2_address/publish"
-    unit: "W"
-    write_topic: null
-  reactive_power_line_phase3_address:
-    read_topic: "reactive_power_line_phase3_address/publish"
-    unit: "W"
-    write_topic: null
-  current_line1_address:
-    read_topic: "current_line1_address/publish"
-    unit: "A"
-    write_topic: null
-  current_line2_address:
-    read_topic: "current_line2_address/publish"
-    unit: "A"
-    write_topic: null
-  current_line3_address:
-    read_topic: "current_line3_address/publish"
-    unit: "A"
-    write_topic: null
-  voltage_l1_n_address:
-    read_topic: "voltage_l1_n_address/publish"
-    unit: "V"
-    write_topic: null
-  voltage_l2_n_address:
-    read_topic: "voltage_l2_n_address/publish"
-    unit: "V"
-    write_topic: null
-  voltage_l3_n_address:
-    read_topic: "voltage_l3_n_address/publish"
-    unit: "V"
-    write_topic: null
-  voltage_l1_l2_address:
-    read_topic: "voltage_l1_l2_address/publish"
-    unit: "V"
-    write_topic: null
-  voltage_l2_l3_address:
-    read_topic: "voltage_l2_l3_address/publish"
-    unit: "V"
-    write_topic: null
-  voltage_l3_l1_address:
-    read_topic: "voltage_l3_l1_address/publish"
-    unit: "V"
-    write_topic: null
+  pose_6d:
+    uuid: "test"
+    version: 1
+    unit: "u"
+    topic: "ai_on_edge/cycle/6d_pose"
+    qos: 0
+    retained: False
+    frequency: 1 #sec or millis?
+  selected_recipe:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/recipes/selected_recipe"
+    qos: 0
+    retained: False
+    frequency: 1
+  done_bags:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/signals/done_bags"
+    qos: 0
+    retained: False
+    frequency: 1
+  total_bags:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/signals/total_bags"
+    qos: 0
+    retained: False
+    frequency: 1
+  placed_objects:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/signals/placed_objects"
+    qos: 0
+    retained: False
+    frequency: 1
+  current_object:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/signals/current_object"
+    qos: 0
+    retained: False
+    frequency: 1
+  cobot_state_cycle:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "cobot/cycle/state"
+    qos: 0
+    retained: False
+    frequency: 1
+  safety:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: ""
+    qos: 0
+    retained: False
+    frequency: 1
+  joints_current_consumption_ma:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: ""
+    qos: 0
+    retained: False
+    frequency: 1
+  joints_temperature_c:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: ""
+    qos: 0
+    retained: False
+    frequency: 1
+  recipe_objects_types:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/recipes/recipe_objects_types"
+    qos: 0
+    retained: False
+    frequency: 1
+  recipe_end_effector_indexes:
+    uuid: ""
+    version: 1
+    unit: "u"
+    topic: "production/cycle/recipes/recipe_end_effector_indexes"
+    qos: 0
+    retained: False
+    frequency: 1
