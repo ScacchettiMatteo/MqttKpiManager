@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 import yaml
 from error.configuration_file_error import ConfigurationFileError
 from error.mqtt.mqtt_client_connection_error import MqttClientConnectionError
+from model.resources.ResourceMapper import ResourceMapper
 
 
 class MqttTelemetryCollector:
@@ -20,7 +21,8 @@ class MqttTelemetryCollector:
     _STR_QOS_SUBSCRIBE = "qos_subscribe"
     _STR_BASE_TOPIC = "base_topic"
     _STR_TELEMETRY_TOPIC = "telemetry_topic"
-    _STR_ACTION_TOPIC = "action_topic"
+    _STR_CONNECTION_TOPIC = "connection_topic"
+    _STR_DISCONNECTION_TOPIC = "disconnection_topic"
 
     def __init__(self, config_object=None, config_file_path=None):
 
@@ -35,7 +37,7 @@ class MqttTelemetryCollector:
                 raise ConfigurationFileError("Error while reading configuration file") from None
         else:
             try:
-                with open('../../config/MQTT/mqtt_telemetry_collector_config.yaml', 'r') as file:
+                with open('../../../config/MQTT/mqtt_telemetry_collector_config.yaml', 'r') as file:
                     self._mapper = yaml.safe_load(file)
             except Exception as e:
                 logging.error(str(e))
@@ -94,12 +96,19 @@ class MqttTelemetryCollector:
             logging.warning("Telemetry topic is not specified")
             self._mqtt_telemetry_topic = "/telemetry"
 
-        if self._STR_ACTION_TOPIC in self._mapper and self._mapper[self._STR_ACTION_TOPIC] is not None:
-            self._action_topic = self._mapper[self._STR_ACTION_TOPIC]
+        if self._STR_CONNECTION_TOPIC in self._mapper and self._mapper[self._STR_CONNECTION_TOPIC] is not None:
+            self._connection_topic = self._mapper[self._STR_CONNECTION_TOPIC]
         else:
-            self._action_topic = "/action/result"
+            self._action_topic = "/connect"
 
-        print(self._mapper)
+        if self._STR_DISCONNECTION_TOPIC in self._mapper and self._mapper[self._STR_DISCONNECTION_TOPIC] is not None:
+            self._connection_topic = self._mapper[self._STR_DISCONNECTION_TOPIC]
+        else:
+            self._action_topic = "/connect"
+
+        self._device_mapper = ResourceMapper()
+        self._device_dictionary = self._device_mapper.get_resource_dict()
+        print(self._device_dictionary)
 
         self._mqtt_client = None
         logging.basicConfig(level=logging.INFO)
@@ -145,7 +154,7 @@ class MqttTelemetryCollector:
         self._mqtt_password = mqtt_password
 
     def publish_senml_pack(self, topic, pack, retained=False):
-        payload = pack.senml_pack_toString()
+        payload = pack.senml_pack_to_json()
         self._mqtt_client.publish(topic, payload, qos=self._qos_publish, retain=retained)
         logging.info(f"Publish to topic: {topic} message: {payload}")
 

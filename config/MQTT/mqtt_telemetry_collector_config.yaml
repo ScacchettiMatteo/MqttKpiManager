@@ -1,10 +1,21 @@
+#client_id: "client_id02"
+#broker_address: "155.185.4.4"
+#broker_port: 7883
+#mqtt_username: "unimore-fum-lab"
+#mqtt_password: "wxugudolcbjttoke"
+#qos_publish: 2
+#qos_subscribe: 2
+#base_topic: "/iot/user/unimore-fum-lab"
+#telemetry_topic: "/telemetry"
+#action_topic: "/action/result"
+
 client_id: "client_id02"
-broker_address: "155.185.4.4"
+broker_address: "demo.thingsboard.io"
 broker_port: 7883
-mqtt_username: "unimore-fum-lab"
-mqtt_password: "wxugudolcbjttoke"
+mqtt_username: "GatewayLab"
 qos_publish: 2
 qos_subscribe: 2
-base_topic: "/iot/user/unimore-fum-lab"
+base_topic: "v1/gateway"
 telemetry_topic: "/telemetry"
-action_topic: "/action/result"
+connection_topic: "/connect"
+disconnection_topic: "/disconnect"

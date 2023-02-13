@@ -6,4 +6,5 @@ print(dictionary)
 
 for key in dictionary:
     print(key)
+    dictionary[key].set_value(1)
     print(dictionary[key])

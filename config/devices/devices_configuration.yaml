@@ -1,0 +1,101 @@
+devices:
+  cobot:
+    pose_6d:
+      uuid: "test"
+      version: 1
+      unit: "u"
+      topic: "ai_on_edge/cycle/6d_pose"
+      qos: 0
+      retained: False
+      frequency: 1 #sec or millis?
+    cobot_state_cycle:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "cobot/cycle/state"
+      qos: 0
+      retained: False
+      frequency: 1
+    safety:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: ""
+      qos: 0
+      retained: False
+      frequency: 1
+    joints_current_consumption_ma:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: ""
+      qos: 0
+      retained: False
+      frequency: 1
+    joints_temperature_c:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: ""
+      qos: 0
+      retained: False
+      frequency: 1
+    recipe_objects_types:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/recipes/recipe_objects_types"
+      qos: 0
+      retained: False
+      frequency: 1
+    recipe_end_effector_indexes:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/recipes/recipe_end_effector_indexes"
+      qos: 0
+      retained: False
+      frequency: 1
+  web_app:
+    selected_recipe:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/recipes/selected_recipe"
+      qos: 0
+      retained: False
+      frequency: 1
+    done_bags:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/signals/done_bags"
+      qos: 0
+      retained: False
+      frequency: 1
+    total_bags:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/signals/total_bags"
+      qos: 0
+      retained: False
+      frequency: 1
+    placed_objects:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/signals/placed_objects"
+      qos: 0
+      retained: False
+      frequency: 1
+    current_object:
+      uuid: ""
+      version: 1
+      unit: "u"
+      topic: "production/cycle/signals/current_object"
+      qos: 0
+      retained: False
+      frequency: 1
+ # ANN:
+
