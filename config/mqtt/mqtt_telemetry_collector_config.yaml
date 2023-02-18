@@ -1,0 +1,9 @@
+client_id: "client_id04"
+broker_address: "155.185.4.4"
+broker_port: 7883
+mqtt_username: "unimore-fum-lab"
+mqtt_password: "wxugudolcbjttoke"
+qos_publish: 2
+qos_subscribe: 2
+base_topic: "/iot/user/unimore-fum-lab/"
+telemetry_topic: "/telemetry"

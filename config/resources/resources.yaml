@@ -1,0 +1,363 @@
+resources:
+  start_stop_cycle:
+    uuid: "start_stop_cycle"
+    version: 1
+    device: "Production"
+    name: ["start_stop_cycle"]
+    unit: ["bit"]
+    topic: "production/cycle/signals/start_stop_cycle"
+    qos: 2
+    retained: False
+    frequency: null
+
+  done_bags:
+    uuid: "done_bags"
+    version: 1
+    device: "Production"
+    name: ["done_bags"]
+    unit: ["count"]
+    topic: "production/cycle/signals/done_bags"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  total_bags:
+    uuid: "total_bags"
+    version: 1
+    device: "Production"
+    name: ["total_bags"]
+    unit: ["count"]
+    topic: "production/cycle/signals/total_bags"
+    qos: 0
+    retained: False
+    frequency: null
+
+  placed_objects:
+    uuid: "placed_objects"
+    version: 1
+    device: "Production"
+    name: ["placed_objects"]
+    unit: ["count"]
+    topic: "production/cycle/signals/placed_objects"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  actual_done_bags:
+    uuid: "actual_done_bags"
+    version: 1
+    device: "Production"
+    name: ["actual_done_bags"]
+    unit: ["count"]
+    topic: "production/cycle/signals/actual_done_bags"
+    qos: 2
+    retained: False
+    frequency: null
+
+  actual_placed_objects:
+    uuid: "actual_placed_objects"
+    version: 1
+    device: "Production"
+    name: ["actual_placed_objects"]
+    unit: ["count"]
+    topic: "production/cycle/signals/actual_placed_objects"
+    qos: 2
+    retained: False
+    frequency: null
+
+  actual_lost_objects:
+    uuid: "actual_lost_objects"
+    version: 1
+    device: "Production"
+    name: ["actual_lost_objects"]
+    unit: ["count"]
+    topic: "production/cycle/signals/actual_lost_objects"
+    qos: 2
+    retained: False
+    frequency: null
+
+  cycle_time:
+    uuid: "cycle_time"
+    version: 1
+    device: "Production"
+    name: ["cycle_time"]
+    unit: ["s"]
+    topic: "production/cycle/time"
+    qos: 2
+    retained: False
+    frequency: null
+
+  current_object:
+    uuid: "current_object"
+    version: 1
+    device: "Production"
+    name: ["current_object"]
+    unit: ["B"]
+    topic: "production/cycle/signals/current_object"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  selected_recipe:
+    uuid: "selected_recipe"
+    version: 1
+    device: "Production"
+    name: ["selected_recipe"]
+    unit: ["B"]
+    topic: "/production/cycle/recipes/selected_recipe"
+    qos: 0
+    retained: False
+    frequency: null
+
+  recipe_objects_types:
+    uuid: "recipe_objects_types"
+    version: 1
+    device: "Production"
+    name: ["type"]
+    unit: ["B"]
+    topic: "production/cycle/recipes/objects_types"
+    qos: 1
+    retained: False
+    frequency: null
+
+  recipe_end_effector_indexes:
+    uuid: "recipe_end_effector_indexes"
+    version: 1
+    device: "Production"
+    name: ["index"]
+    unit: ["count"]
+    topic: "production/cycle/recipes/end_effector_indexes"
+    qos: 1
+    retained: False
+    frequency: null
+
+  recipe_object_types_box_positions:
+    uuid: "recipe_object_types_box_positions"
+    version: 1
+    device: "Production"
+    name: ["recipe_object_types_box_positions"]
+    unit: ["list"]
+    topic: "production/cycle/recipes/object_types_box_positions"
+    qos: 1
+    retained: False
+    frequency: null
+
+  recipe_object_types_numbers:
+    uuid: "recipe_object_types_numbers"
+    version: 1
+    device: "Production"
+    name: ["number"]
+    unit: ["count"]
+    topic: "production/cycle/recipes/object_types_numbers"
+    qos: 1
+    retained: False
+    frequency: null
+
+  cobot_state_cycle:
+    uuid: "cobot_state_cycle"
+    version: 1
+    device: "Cobot"
+    name: ["cobot_state_cycle"]
+    unit: ["B"]
+    topic: "cobot/states/cobot_state_cycle"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  robot_mode:
+    uuid: "robot_mode"
+    version: 1
+    device: "Cobot"
+    name: ["robot_mode"]
+    unit: ["count"]
+    topic: "cobot/states/robot_mode"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  power_on_robot:
+    uuid: "power_on_robot"
+    version: 1
+    device: "Cobot"
+    name: ["power_on_robot"]
+    unit: ["bit"]
+    topic: "cobot/states/power_on_robot"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  safety:
+    uuid: "safety"
+    version: 1
+    device: "Cobot"
+    name: ["safety"]
+    unit: ["bit"]
+    topic: "cobot/states/safety"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  alarm_counter:
+    uuid: "alarm_counter"
+    version: 1
+    device: "Cobot"
+    name: ["alarm_counter"]
+    unit: ["count"]
+    topic: "cobot/states/alarm_counter"
+    qos: 2
+    retained: False
+    frequency: null
+
+  joint_angles:
+    uuid: "joint_angles"
+    version: 1
+    device: "Cobot"
+    name: ["base", "shoulder", "elbow", "wrist_1", "wrist_2", "wrist_3"]
+    unit: ["mrad"]
+    topic: "cobot/joints/sensors/angles"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  joint_angle_velocities:
+    uuid: "joint_angle_velocities"
+    version: 1
+    device: "Cobot"
+    name: ["base", "shoulder", "elbow", "wrist_1", "wrist_2", "wrist_3"]
+    unit: ["mrads"]
+    topic: "cobot/joints/sensors/velocities"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  joint_current_consumptions:
+    uuid: "joint_current_consumptions"
+    version: 1
+    device: "Cobot"
+    name: ["base", "shoulder", "elbow", "wrist_1", "wrist_2", "wrist_3"]
+    unit: ["mA"]
+    topic: "cobot/joints/sensors/current_consumptions"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  joint_temperatures:
+    uuid: "joint_temperatures"
+    version: 1
+    device: "Cobot"
+    name: ["base", "shoulder", "elbow", "wrist_1", "wrist_2", "wrist_3"]
+    unit: ["Cel"]
+    topic: "cobot/joints/sensors/temperatures"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  tcp:
+    uuid: "tcp"
+    version: 1
+    device: "Cobot"
+    name: ["x", "y", "z", "rx", "ry", "rz"]
+    unit: ["deg", "deg", "deg", "mrad", "mrad", "mrad"]
+    topic: "cobot/states/tcp"
+    qos: 0
+    retained: False
+    frequency: 500
+
+  6d_pose_estimation:
+    uuid: "6d_pose_estimation"
+    version: 1
+    device: "AIonEdge"
+    name: ["x", "y", "z", "rx", "ry", "rz"]
+    unit: ["deg", "deg", "deg", "rad", "rad", "rad"]
+    topic: "ai_on_edge/inference/6d_pose_estimation"
+    qos: 2
+    retained: False
+    frequency: null
+
+  request_6d_pose_estimation:
+    uuid: "request_6d_pose_estimation"
+    version: 1
+    device: "AIonEdge"
+    name: ["request_6d_pose_estimation"]
+    unit: ["bit"]
+    topic: "ai_on_edge/inference/request_6d_pose_estimation"
+    qos: 2
+    retained: False
+    frequency: null
+
+  confidence:
+    uuid: "confidence"
+    version: 1
+    device: "AIonEdge"
+    name: ["score"]
+    unit: ["%"]
+    topic: "ai_on_edge/inference/scores/confidence"
+    qos: 2
+    retained: False
+    frequency: null
+
+  cosine_similarity:
+    uuid: "cosine_similarity"
+    version: 1
+    device: "AIonEdge"
+    name: ["score"]
+    unit: ["%"]
+    topic: "ai_on_edge/inference/scores/cosine_similarity"
+    qos: 2
+    retained: False
+    frequency: null
+
+  inference_time:
+    uuid: "inference_time"
+    version: 1
+    device: "AIonEdge"
+    name: ["inference_time"]
+    unit: ["s"]
+    topic: "ai_on_edge/inference/time"
+    qos: 2
+    retained: False
+    frequency: null
+
+  rgb_image:
+    uuid: "rgb_image"
+    version: 1
+    device: "AIonEdge"
+    name: ["rgb_image"]
+    unit: ["img"]
+    topic: "ai_on_edge/image/rgb_image"
+    qos: 0
+    retained: False
+    frequency: null
+
+  detection_image:
+    uuid: "detection_image"
+    version: 1
+    device: "AIonEdge"
+    name: ["detection_image"]
+    unit: ["img"]
+    topic: "ai_on_edge/image/detection_image"
+    qos: 0
+    retained: False
+    frequency: null
+
+  6d_pose_estimation_image:
+    uuid: "6d_pose_estimation_image"
+    version: 1
+    device: "AIonEdge"
+    name: ["picking_point_image"]
+    unit: ["img"]
+    topic: "ai_on_edge/image/6d_pose_estimation_image"
+    qos: 0
+    retained: False
+    frequency: null
+
+  picking_point_image:
+    uuid: "picking_point_image"
+    version: 1
+    device: "AIonEdge"
+    name: ["picking_point_image"]
+    unit: ["img"]
+    topic: "ai_on_edge/image/picking_point_image"
+    qos: 0
+    retained: False
+    frequency: null

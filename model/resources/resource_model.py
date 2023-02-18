@@ -2,16 +2,18 @@ import json
 
 
 class ResourceModel:
-
     def __init__(self, *args):
         self.uuid = None
         self.version = None
+        self.device = None
+        self.name = None
         self.unit = None
         self.topic = None
         self.qos = None
         self.retained = None
         self.frequency = None
         self.value = None
+
         if len(args) > 0 and isinstance(args[0], dict):
             vars(self).update(args[0])
 
@@ -20,6 +22,12 @@ class ResourceModel:
 
     def get_version(self):
         return self.version
+
+    def get_device(self):
+        return self.device
+
+    def get_name(self):
+        return self.name
 
     def get_unit(self):
         return self.unit
@@ -45,6 +53,12 @@ class ResourceModel:
     def set_version(self, version):
         self.version = version
 
+    def set_device(self, device):
+        self.device = device
+
+    def set_name(self, name):
+        self.name = name
+
     def set_unit(self, unit):
         self.unit = unit
 
@@ -64,7 +78,7 @@ class ResourceModel:
         self.value = value
 
     def __str__(self):
-        return f'ResourceModel({self.uuid},{self.version},{self.unit},{self.topic},{self.qos},{self.retained},{self.frequency},{self.value})'
+        return f'ResourceModel({self.uuid},{self.version},{self.name},{self.unit},{self.topic},{self.qos},{self.retained},{self.frequency},{self.value})'
 
     @staticmethod
     def object_mapping(dictionary):

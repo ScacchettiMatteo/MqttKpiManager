@@ -1,6 +1,6 @@
 import time
-from utils.SenML.SenML_Pack import SenMLPack
-from utils.SenML.SenML_Record import SenMLRecord
+from utils.senml.SenML_Pack import SenMLPack
+from utils.senml.SenML_Record import SenMLRecord
 
 pack = SenMLPack("test", 10)
 record = SenMLRecord()

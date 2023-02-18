@@ -1,18 +1,14 @@
 import logging
 import uuid
-import paho.mqtt.client as mqtt
 import yaml
+import paho.mqtt.client as mqtt
 from error.configuration_file_error import ConfigurationFileError
 from error.mqtt.mqtt_client_connection_error import MqttClientConnectionError
-from model.resources.ResourceMapper import ResourceMapper
 
 
-class MqttTelemetryCollector:
-
+class MqttPublisherToThingsboard:
     _STR_CLIENT_ID = "client_id"
-    _STR_MODBUS_DEVICE_TYPE = "modbus_device_type"
-    _STR_MODBUS_ADDRESS = "modbus_address"
-    _STR_QE_POWER_T = "qe_power_t"
+    _STR_QOS = "qos"
     _STR_BROKER_ADDRESS = "broker_address"
     _STR_BROKER_PORT = "broker_port"
     _STR_MQTT_USERNAME = "mqtt_username"
@@ -21,8 +17,6 @@ class MqttTelemetryCollector:
     _STR_QOS_SUBSCRIBE = "qos_subscribe"
     _STR_BASE_TOPIC = "base_topic"
     _STR_TELEMETRY_TOPIC = "telemetry_topic"
-    _STR_CONNECTION_TOPIC = "connection_topic"
-    _STR_DISCONNECTION_TOPIC = "disconnection_topic"
 
     def __init__(self, config_object=None, config_file_path=None):
 
@@ -37,7 +31,7 @@ class MqttTelemetryCollector:
                 raise ConfigurationFileError("Error while reading configuration file") from None
         else:
             try:
-                with open('../../../config/MQTT/mqtt_telemetry_collector_config.yaml', 'r') as file:
+                with open('../../../config/mqtt/mqtt_telemetry_publisher.yaml', 'r') as file:
                     self._mapper = yaml.safe_load(file)
             except Exception as e:
                 logging.error(str(e))
@@ -96,72 +90,20 @@ class MqttTelemetryCollector:
             logging.warning("Telemetry topic is not specified")
             self._mqtt_telemetry_topic = "/telemetry"
 
-        if self._STR_CONNECTION_TOPIC in self._mapper and self._mapper[self._STR_CONNECTION_TOPIC] is not None:
-            self._connection_topic = self._mapper[self._STR_CONNECTION_TOPIC]
-        else:
-            self._action_topic = "/connect"
-
-        if self._STR_DISCONNECTION_TOPIC in self._mapper and self._mapper[self._STR_DISCONNECTION_TOPIC] is not None:
-            self._connection_topic = self._mapper[self._STR_DISCONNECTION_TOPIC]
-        else:
-            self._action_topic = "/connect"
-
-        self._device_mapper = ResourceMapper()
-        self._device_dictionary = self._device_mapper.get_resource_dict()
-        print(self._device_dictionary)
-
         self._mqtt_client = None
-        logging.basicConfig(level=logging.INFO)
-
-    def on_connect(self, client, userdata, flags, rc):
-        logging.info("Client " + str(self._client_id) + " connected with result code " + str(rc))
-
-    def on_disconnect(self, client, userdata, rc):
-        logging.info("Client " + str(self._client_id) + " disconnected with result code " + str(rc))
-
-    def on_message(self, client, userdata, message):
-        string_payload = str(message.payload.decode("utf-8"))
-        topic = message.topic
-        logging.info(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
 
     def init(self):
         try:
             self._mqtt_client = mqtt.Client(self._client_id, clean_session=False)
-            self._mqtt_client.on_connect = self.on_connect
-            self._mqtt_client.on_message = self.on_message
-            self._mqtt_client.on_disconnect = self.on_disconnect
             self._mqtt_client.username_pw_set(self._mqtt_username, self._mqtt_password)
-            logging.info("Connecting to " + self._broker_address + " port: " + str(self._broker_port))
+            print("Connecting to " + self._broker_address + " port: " + str(self._broker_port))
             self._mqtt_client.connect(self._broker_address, self._broker_port)
             self._mqtt_client.loop_start()
         except Exception as e:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
 
-    def set_client_id(self, client_id):
-        self._client_id = client_id
-
-    def set_broker_address(self, broker_address):
-        self._broker_address = broker_address
-
-    def set_broker_port(self, broker_port):
-        self._broker_port = broker_port
-
-    def set_mqtt_username(self, mqtt_username):
-        self._mqtt_username = mqtt_username
-
-    def set_mqtt_password(self, mqtt_password):
-        self._mqtt_password = mqtt_password
-
-    def publish_senml_pack(self, topic, pack, retained=False):
-        payload = pack.senml_pack_to_json()
+    def publish_message(self, payload, retained=False):
+        topic = self._mqtt_basic_topic + self._mqtt_telemetry_topic
         self._mqtt_client.publish(topic, payload, qos=self._qos_publish, retain=retained)
-        logging.info(f"Publish to topic: {topic} message: {payload}")
-
-    def subscribe_topic(self, topic):
-        self._mqtt_client.subscribe(topic, qos=self._qos_subscribe)
-        logging.info(f"Subscribe to topic: {topic}")
-
-    def stop(self):
-        self._mqtt_client.loop_stop()
-        self._mqtt_client.disconnect()
+        print(f"Publish to topic: {topic} message: {payload}")
