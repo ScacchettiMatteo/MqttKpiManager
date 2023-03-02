@@ -38,7 +38,7 @@ class MqttTelemetryCollector:
                 raise ConfigurationFileError("Error while reading configuration file") from None
         else:
             try:
-                with open('../../../config/mqtt/mqtt_telemetry_collector_config.yaml', 'r') as file:
+                with open('../config/mqtt/mqtt_telemetry_collector_config.yaml', 'r') as file:
                     self._mapper = yaml.safe_load(file)
             except Exception as e:
                 logging.error(str(e))

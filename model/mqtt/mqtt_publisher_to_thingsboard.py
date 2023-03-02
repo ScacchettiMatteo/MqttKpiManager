@@ -31,7 +31,7 @@ class MqttPublisherToThingsboard:
                 raise ConfigurationFileError("Error while reading configuration file") from None
         else:
             try:
-                with open('../../../config/mqtt/mqtt_telemetry_publisher.yaml', 'r') as file:
+                with open('../config/mqtt/mqtt_telemetry_publisher.yaml', 'r') as file:
                     self._mapper = yaml.safe_load(file)
             except Exception as e:
                 logging.error(str(e))
