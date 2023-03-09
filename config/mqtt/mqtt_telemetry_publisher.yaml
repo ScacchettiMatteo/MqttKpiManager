@@ -1,8 +1,8 @@
-client_id: "client_id05"
+client_id: "client_id07"
 broker_address: "demo.thingsboard.io"
 broker_port: 1883
 mqtt_username: "GatewayLab"
 qos_publish: 1
 qos_subscribe: 1
 base_topic: "v1/gateway"
-telemetry_topic: "/telemetry"
+telemetry_topic: "/test"

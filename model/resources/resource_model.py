@@ -10,8 +10,7 @@ class ResourceModel:
         self.unit = None
         self.topic = None
         self.qos = None
-        self.retained = None
-        self.frequency = None
+        self.operation = None
         self.value = None
 
         if len(args) > 0 and isinstance(args[0], dict):
@@ -38,11 +37,8 @@ class ResourceModel:
     def get_qos(self):
         return self.qos
 
-    def get_retained(self):
-        return self.retained
-
-    def get_frequency(self):
-        return self.frequency
+    def get_operation(self):
+        return self.operation
 
     def get_value(self):
         return self.value
@@ -68,17 +64,14 @@ class ResourceModel:
     def set_qos(self, qos):
         self.qos = qos
 
-    def set_retained(self, retained):
-        self.retained = retained
-
-    def set_frequency(self, frequency):
-        self.frequency = frequency
+    def set_operation(self, operation):
+        self.operation = operation
 
     def set_value(self, value):
         self.value = value
 
     def __str__(self):
-        return f'ResourceModel({self.uuid},{self.version},{self.name},{self.unit},{self.topic},{self.qos},{self.retained},{self.frequency},{self.value})'
+        return f'ResourceModel({self.uuid},{self.version},{self.name},{self.unit},{self.topic},{self.qos},{self.operation},{self.value})'
 
     @staticmethod
     def object_mapping(dictionary):

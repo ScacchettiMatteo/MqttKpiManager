@@ -1,17 +1,21 @@
 import json
 import logging
+import time
 import uuid
+from threading import Thread
 import paho.mqtt.client as mqtt
 import yaml
 from error.configuration_file_error import ConfigurationFileError
 from error.mqtt.mqtt_client_connection_error import MqttClientConnectionError
 from model.mqtt.mqtt_publisher_to_thingsboard import MqttPublisherToThingsboard
+from model.resources.resource_model import ResourceModel
 from model.resources.resources_mapper import ResourcesMapper
 from utils.format.jsonsenml.format_json_senml import FormatJsonSenML
 from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
+    _timer = 10
     _STR_CLIENT_ID = "client_id"
     _STR_QOS = "qos"
     _STR_BROKER_ADDRESS = "broker_address"
@@ -107,10 +111,12 @@ class MqttTelemetryCollector:
         else:
             self._action_topic = "/disconnect"
 
+        # set base data structure
         self._mqtt_client = None
         self._mqtt_publisher = MqttPublisherToThingsboard()
         self.format_json_senml = FormatJsonSenML()
-        self._resources_dict = ResourcesMapper().get_resources()
+        self.resource_mapper = ResourcesMapper()
+        self._resources_dict = self.resource_mapper.get_resources()
         self._topics_dict = {}
         for resource in self._resources_dict:
             self._topics_dict[self._mqtt_basic_topic + self._resources_dict[resource].get_topic()] = resource
@@ -125,8 +131,8 @@ class MqttTelemetryCollector:
     def on_message(self, client, userdata, message):
         string_payload = str(message.payload.decode("utf-8"))
         topic = message.topic
-        print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
-        self.publish_message(self.format_message(topic, string_payload))
+        #print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
+        self.update_kpi(topic, string_payload)
 
     def init(self):
         try:
@@ -141,6 +147,7 @@ class MqttTelemetryCollector:
         except Exception as e:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
+        Thread(target=self.publish_message).start()
         self._mqtt_client.loop_forever()
 
     def set_client_id(self, client_id):
@@ -168,42 +175,49 @@ class MqttTelemetryCollector:
         self._mqtt_client.subscribe(topic, qos=qos)
         print(f"Subscribe to topic: {topic}")
 
-    def format_message(self, topic, string_payload):
+    def update_kpi(self, topic, string_payload):
         try:
             resource_name = self._topics_dict[topic]
             senml_pack = SenMLPack()
             senml_pack.from_json(string_payload)
-            self.format_json_senml.from_format(senml_pack, self._resources_dict[resource_name])
-            return self.format_json_message(self._resources_dict[resource_name])
+            resource = ResourceModel()
+            self.format_json_senml.from_format(senml_pack, resource)
+            self.update_data(resource_name, resource)
         except:
             logging.warning("Senml format wrong")
 
-    @staticmethod
-    def format_json_message(resource):
-        json_dict = {}
-        values = {}
+    def update_data(self, resource_name, resource):
+        if self._resources_dict[resource_name].get_operation() == 'sum':
+            self._resources_dict[resource_name].set_value(self._resources_dict[resource_name].get_value() + resource.get_value())
+        elif self._resources_dict[resource_name].get_operation() == 'mean':
+            self._resources_dict[resource_name].set_value((self._resources_dict[resource_name].get_value() + resource.get_value()) / 2)
+        elif self._resources_dict[resource_name].get_operation() == 'assign':
+            self._resources_dict[resource_name].set_value(resource.get_value())
+        elif self._resources_dict[resource_name].get_operation() == 'double_mean':
+            self._resources_dict[resource_name].set_value((self._resources_dict[resource_name].get_value() + (sum(resource.get_value()) / len(resource.get_value()))) / 2)
+
+    def publish_message(self, retained=False):
+        while True:
+            time.sleep(self._timer)
+            payload = self._resources_dict
+            self._resources_dict = ResourcesMapper().get_resources()
+            kpi_dict = self.get_kpi_dict(payload)
+            print(kpi_dict)
+            #self._mqtt_publisher.publish_message(payload, retained)
+
+    def get_kpi_dict(self, resources):
+        kpi_dict = {}
+        tmp = {}
         lista = []
 
-        if resource.get_name()[0] == "recipe_object_types_box_positions":
-            return None
+        for resource in resources:
+            tmp[resource] = resources[resource].get_value()
 
-        if len(resource.get_name()) > 1:
-            for name, value in zip(resource.get_name(), resource.get_value()):
-                values[name] = value
-        elif len(resource.get_name()) == 1 and type(resource.get_value()) is list:
-            for i, value in enumerate(resource.get_value()):
-                values[resource.get_name()[0] + "_" + str(i + 1)] = value
-        elif len(resource.get_name()) == 1:
-            values[resource.get_name()[0]] = resource.get_value()
-        else:
-            return None
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
-        lista.append(values)
-        json_dict[resource.get_device()] = lista
-        return json.dumps(json_dict)
-
-    def publish_message(self, payload, retained=False):
-        self._mqtt_publisher.publish_message(payload, retained)
+        lista.append(tmp)
+        kpi_dict["KPI"] = lista
+        return json.dumps(kpi_dict)
 
     def stop(self):
         self._mqtt_client.loop_stop()
