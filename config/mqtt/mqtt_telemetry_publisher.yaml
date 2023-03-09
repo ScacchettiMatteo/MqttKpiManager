@@ -5,4 +5,4 @@ mqtt_username: "GatewayLab"
 qos_publish: 1
 qos_subscribe: 1
 base_topic: "v1/gateway"
-telemetry_topic: "/test"
+telemetry_topic: "/telemetry"

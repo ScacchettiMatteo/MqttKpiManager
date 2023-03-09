@@ -29,6 +29,16 @@ resources:
     qos: 2
     operation: 'mean'
     value: 0
+  sum_cycle_time:
+    uuid: "sum_cycle_time"
+    version: 1
+    device: "Production"
+    name: [ "sum_cycle_time" ]
+    unit: [ "count" ]
+    topic: "production/cycle/time/telemetry"
+    qos: 2
+    operation: 'mean_sum'
+    value: 0
   object_type:
     uuid: "object_type"
     version: 1
@@ -38,7 +48,7 @@ resources:
     topic: "production/cycle/signals/current_object/telemetry"
     qos: 0
     operation: 'assign'
-    value: ''
+    value: ' '
   confidence:
     uuid: "confidence"
     version: 1
@@ -68,6 +78,16 @@ resources:
     topic: "ai_on_edge/inference/time/telemetry"
     qos: 2
     operation: 'mean'
+    value: 0
+  sum_inference_time:
+    uuid: "sum_inference_time"
+    version: 1
+    device: "AIonEdge"
+    name: [ "sum_inference_time" ]
+    unit: [ "count" ]
+    topic: "ai_on_edge/inference/time/telemetry"
+    qos: 2
+    operation: 'mean_sum'
     value: 0
   plc_daily_done_bags:
     uuid: "plc_daily_done_bags"
