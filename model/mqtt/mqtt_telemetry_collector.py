@@ -15,7 +15,10 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 10
+    _timer = 50
+    _timer_test = 10
+    _STR_DEVICE = "Kpi_Fum_Lab"
+    _STR_DEVICE_TEST = "Kpi_Simulated_Lab"
     _STR_CLIENT_ID = "client_id"
     _STR_QOS = "qos"
     _STR_BROKER_ADDRESS = "broker_address"
@@ -111,7 +114,6 @@ class MqttTelemetryCollector:
         else:
             self._action_topic = "/disconnect"
 
-        # set base data structure
         self._mqtt_client = None
         self._mqtt_publisher = MqttPublisherToThingsboard()
         self.format_json_senml = FormatJsonSenML()
@@ -131,7 +133,7 @@ class MqttTelemetryCollector:
     def on_message(self, client, userdata, message):
         string_payload = str(message.payload.decode("utf-8"))
         topic = message.topic
-        print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
+        #print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
         self.update_kpi(topic, string_payload)
 
     def init(self):
@@ -195,16 +197,15 @@ class MqttTelemetryCollector:
             self._resources_dict[resource_name].set_value(resource.get_value())
         elif self._resources_dict[resource_name].get_operation() == 'double_mean':
             self._resources_dict[resource_name].set_value((self._resources_dict[resource_name].get_value() + (sum(resource.get_value()) / len(resource.get_value()))) / 2)
-        elif self._resources_dict[resource_name].get_operation() == 'mean_sum':
-            self._resources_dict[resource_name].set_value(self._resources_dict[resource_name].get_value() + sum(resource.get_value()))
 
     def publish_message(self, retained=False):
         while True:
             time.sleep(self._timer)
             payload = self._resources_dict
             self._resources_dict = ResourcesMapper().get_resources()
-            self._mqtt_publisher.publish_message(self.get_kpi_dict(payload, "Kpi_Fum_Lab"), retained)
-            self._mqtt_publisher.publish_message(self.get_kpi_dict(self._resources_dict, "Kpi_Simulated_Lab"), retained)
+            self._mqtt_publisher.publish_message(self.get_kpi_dict(payload, self._STR_DEVICE), retained)
+            time.sleep(self._timer_test)
+            self._mqtt_publisher.publish_message(self.get_kpi_dict(self._resources_dict, self._STR_DEVICE_TEST), retained)
 
     def get_kpi_dict(self, resources, device):
         kpi_dict = {}
@@ -214,29 +215,15 @@ class MqttTelemetryCollector:
         for resource in resources:
             tmp[resource] = resources[resource].get_value()
 
-        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / (self._timer + self._timer_test)
         if tmp["sum_inference_time"] != 0:
             tmp["cobot_inactivity_factor"] = tmp["sum_cycle_time"] / tmp["sum_inference_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
-        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / (self._timer + self._timer_test)
 
         lista.append(tmp)
         kpi_dict[device] = lista
-        return json.dumps(kpi_dict)
-
-    def get_simulated_kpi_dict(self, resources):
-        kpi_dict = {}
-        tmp = {}
-        lista = []
-
-        for resource in resources:
-            tmp[resource] = resources[resource].get_value()
-
-        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
-
-        lista.append(tmp)
-        kpi_dict["Kpi_Fum_Lab"] = lista
         return json.dumps(kpi_dict)
 
     def stop(self):

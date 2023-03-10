@@ -33,11 +33,11 @@ resources:
     uuid: "sum_cycle_time"
     version: 1
     device: "Production"
-    name: [ "sum_cycle_time" ]
-    unit: [ "count" ]
+    name: ["sum_cycle_time"]
+    unit: ["count"]
     topic: "production/cycle/time/telemetry"
     qos: 2
-    operation: 'mean_sum'
+    operation: 'sum'
     value: 0
   object_type:
     uuid: "object_type"
@@ -87,7 +87,7 @@ resources:
     unit: [ "count" ]
     topic: "ai_on_edge/inference/time/telemetry"
     qos: 2
-    operation: 'mean_sum'
+    operation: 'sum'
     value: 0
   plc_daily_done_bags:
     uuid: "plc_daily_done_bags"
