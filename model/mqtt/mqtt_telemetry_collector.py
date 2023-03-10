@@ -15,8 +15,8 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 50
-    _timer_test = 10
+    _timer = 40
+    _timer_test = 20
     _STR_DEVICE = "Kpi_Fum_Lab"
     _STR_DEVICE_TEST = "Kpi_Simulated_Lab"
     _STR_CLIENT_ID = "client_id"
