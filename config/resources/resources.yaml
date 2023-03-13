@@ -97,5 +97,5 @@ resources:
     unit: [ "count" ]
     topic: "conveyor/states/cycle/actual_unloaded_objects/telemetry"
     qos: 2
-    operation: 'sum'
+    operation: 'assign'
     value: 0

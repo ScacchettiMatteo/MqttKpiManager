@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 import time
 import uuid
 from threading import Thread
@@ -15,8 +16,7 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 40
-    _timer_test = 20
+    _timer = 5
     _STR_DEVICE = "Kpi_Fum_Lab"
     _STR_DEVICE_TEST = "Kpi_Simulated_Lab"
     _STR_CLIENT_ID = "client_id"
@@ -150,6 +150,7 @@ class MqttTelemetryCollector:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
         Thread(target=self.publish_message).start()
+        Thread(target=self.publish_simulated_message).start()
         self._mqtt_client.loop_forever()
 
     def set_client_id(self, client_id):
@@ -204,8 +205,6 @@ class MqttTelemetryCollector:
             payload = self._resources_dict
             self._resources_dict = ResourcesMapper().get_resources()
             self._mqtt_publisher.publish_message(self.get_kpi_dict(payload, self._STR_DEVICE), retained)
-            time.sleep(self._timer_test)
-            self._mqtt_publisher.publish_message(self.get_kpi_dict(self._resources_dict, self._STR_DEVICE_TEST), retained)
 
     def get_kpi_dict(self, resources, device):
         kpi_dict = {}
@@ -215,12 +214,46 @@ class MqttTelemetryCollector:
         for resource in resources:
             tmp[resource] = resources[resource].get_value()
 
-        tmp["cadence_production_line"] = tmp["daily_done_bags"] / (self._timer + self._timer_test)
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
         if tmp["sum_inference_time"] != 0:
             tmp["cobot_inactivity_factor"] = tmp["sum_cycle_time"] / tmp["sum_inference_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
-        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / (self._timer + self._timer_test)
+        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+
+        lista.append(tmp)
+        kpi_dict[device] = lista
+        return json.dumps(kpi_dict)
+
+    def publish_simulated_message(self, retained=False):
+        while True:
+            time.sleep(self._timer)
+            payload = self._resources_dict
+            self._resources_dict = ResourcesMapper().get_resources()
+            self._mqtt_publisher.publish_message(self.get_kpi_dict_simulated(payload, self._STR_DEVICE_TEST), retained)
+
+    def get_kpi_dict_simulated(self, resources, device):
+        kpi_dict = {}
+        tmp = {}
+        lista = []
+
+        for resource in resources:
+            sign = random.choice([-1, 1])
+            p_value = random.random() * random.randint(0, 20)
+            if resources[resource].get_unit()[0] != "B" and resources[resource].get_value() + (p_value * sign) >= 0:
+                if resources[resource].get_unit()[0] != "%":
+                    tmp[resource] = round(resources[resource].get_value() + (p_value * sign))
+                else:
+                    tmp[resource] = resources[resource].get_value() + (p_value * sign)
+            else:
+                tmp[resource] = resources[resource].get_value()
+
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
+        if tmp["sum_inference_time"] != 0:
+            tmp["cobot_inactivity_factor"] = tmp["sum_cycle_time"] / tmp["sum_inference_time"]
+        else:
+            tmp["cobot_inactivity_factor"] = 0
+        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
 
         lista.append(tmp)
         kpi_dict[device] = lista
