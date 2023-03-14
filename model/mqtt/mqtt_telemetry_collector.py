@@ -16,7 +16,8 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 90
+    _timer = 180
+    _old_resource = 0
     _first_confidence = True
     _first_cosine_similarity = True
     _STR_DEVICE = "Kpi_Fum_Lab"
@@ -135,7 +136,7 @@ class MqttTelemetryCollector:
     def on_message(self, client, userdata, message):
         string_payload = str(message.payload.decode("utf-8"))
         topic = message.topic
-        print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
+        #print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
         self.update_kpi(topic, string_payload)
 
     def init(self):
@@ -152,7 +153,7 @@ class MqttTelemetryCollector:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
         Thread(target=self.publish_message).start()
-        Thread(target=self.publish_simulated_message).start()
+        #Thread(target=self.publish_simulated_message).start()
         self._mqtt_client.loop_forever()
 
     def set_client_id(self, client_id):
@@ -204,8 +205,14 @@ class MqttTelemetryCollector:
                     self._resources_dict[resource_name].set_value(resource.get_value())
                 else:
                     if resource.get_value() != 0:
+                        #self._old_resource = resource.get_value()
                         if resource.get_value() > self._resources_dict["plc_cycle_time_tmp"].get_value():
                             self._resources_dict[resource_name].set_value(resource.get_value())
+                        elif resource.get_value() < self._resources_dict["plc_cycle_time_tmp"].get_value():
+                            self._resources_dict["plc_cycle_time"].set_value(self._resources_dict["plc_cycle_time"].get_value() + self._resources_dict[resource_name].get_value())
+                            self._resources_dict[resource_name].set_value(0)
+                            print(self._resources_dict[resource_name].get_value())
+                            print(self._resources_dict["plc_cycle_time"].get_value())
                     else:
                         self._resources_dict["plc_cycle_time"].set_value(self._resources_dict["plc_cycle_time"].get_value() + self._resources_dict[resource_name].get_value())
                         self._resources_dict[resource_name].set_value(0)
@@ -243,7 +250,7 @@ class MqttTelemetryCollector:
             tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
-        tmp["plant_inactivity_factor"] = (tmp["plc_cycle_time"] * 100) / self._timer
+        tmp["plant_inactivity_factor"] = 100 - ((tmp["plc_cycle_time"] * 100) / self._timer)
         tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
         lista.append(tmp)
