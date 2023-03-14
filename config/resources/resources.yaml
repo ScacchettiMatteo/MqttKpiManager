@@ -79,7 +79,7 @@ resources:
     qos: 2
     operation: 'assign'
     value: 0
-  plc_daily_done_bags:
+  plc_cycle_time:
     uuid: "plc_daily_done_bags"
     version: 1
     device: "Conveyor"
