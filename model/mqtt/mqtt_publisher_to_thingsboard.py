@@ -106,4 +106,4 @@ class MqttPublisherToThingsboard:
     def publish_message(self, payload, retained=False):
         topic = self._mqtt_basic_topic + self._mqtt_telemetry_topic
         self._mqtt_client.publish(topic, payload, qos=self._qos_publish, retain=retained)
-        print(f"Publish to topic: {topic} message: {payload}")
+        print(f"Publish to topic: {topic} message: {payload}\n")

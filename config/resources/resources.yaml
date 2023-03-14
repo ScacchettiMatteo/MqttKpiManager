@@ -28,7 +28,7 @@ resources:
     topic: "production/cycle/time/telemetry"
     qos: 2
     operation: 'mean'
-    value: 0
+    value: []
   sum_cycle_time:
     uuid: "sum_cycle_time"
     version: 1
@@ -58,7 +58,7 @@ resources:
     topic: "ai_on_edge/inference/scores/confidence/telemetry"
     qos: 2
     operation: 'double_mean'
-    value: 0
+    value: []
   cosine_similarity:
     uuid: "cosine_similarity"
     version: 1
@@ -68,7 +68,7 @@ resources:
     topic: "ai_on_edge/inference/scores/cosine_similarity/telemetry"
     qos: 2
     operation: 'double_mean'
-    value: 0
+    value: []
   inference_time:
     uuid: "inference_time"
     version: 1
@@ -78,7 +78,7 @@ resources:
     topic: "ai_on_edge/inference/time/telemetry"
     qos: 2
     operation: 'mean'
-    value: 0
+    value: []
   sum_inference_time:
     uuid: "sum_inference_time"
     version: 1

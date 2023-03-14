@@ -16,7 +16,9 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 5
+    _timer = 60
+    _first_confidence = True
+    _first_cosine_similarity = True
     _STR_DEVICE = "Kpi_Fum_Lab"
     _STR_DEVICE_TEST = "Kpi_Simulated_Lab"
     _STR_CLIENT_ID = "client_id"
@@ -133,7 +135,7 @@ class MqttTelemetryCollector:
     def on_message(self, client, userdata, message):
         string_payload = str(message.payload.decode("utf-8"))
         topic = message.topic
-        #print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
+        print(f"Received IoT Message: Topic: {topic} Payload: {string_payload}")
         self.update_kpi(topic, string_payload)
 
     def init(self):
@@ -150,7 +152,7 @@ class MqttTelemetryCollector:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
         Thread(target=self.publish_message).start()
-        Thread(target=self.publish_simulated_message).start()
+        #Thread(target=self.publish_simulated_message).start()
         self._mqtt_client.loop_forever()
 
     def set_client_id(self, client_id):
@@ -193,11 +195,11 @@ class MqttTelemetryCollector:
         if self._resources_dict[resource_name].get_operation() == 'sum':
             self._resources_dict[resource_name].set_value(self._resources_dict[resource_name].get_value() + resource.get_value())
         elif self._resources_dict[resource_name].get_operation() == 'mean':
-            self._resources_dict[resource_name].set_value((self._resources_dict[resource_name].get_value() + resource.get_value()) / 2)
+            self._resources_dict[resource_name].get_value().append(resource.get_value())
         elif self._resources_dict[resource_name].get_operation() == 'assign':
             self._resources_dict[resource_name].set_value(resource.get_value())
         elif self._resources_dict[resource_name].get_operation() == 'double_mean':
-            self._resources_dict[resource_name].set_value((self._resources_dict[resource_name].get_value() + (sum(resource.get_value()) / len(resource.get_value()))) / 2)
+            self._resources_dict[resource_name].get_value().append((sum(resource.get_value()) / len(resource.get_value())))
 
     def publish_message(self, retained=False):
         while True:
@@ -211,12 +213,22 @@ class MqttTelemetryCollector:
         tmp = {}
         lista = []
 
-        for resource in resources:
-            tmp[resource] = resources[resource].get_value()
-
+        tmp["sum_inference_time"] = resources["sum_inference_time"].get_value()
+        tmp["sum_cycle_time"] = resources["sum_cycle_time"].get_value()
+        tmp["object_type"] = resources["object_type"].get_value()
+        tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
+        tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
+        if len(resources["inference_time"].get_value()) > 0:
+            tmp["inference_time"] = sum(resources["inference_time"].get_value()) / len(resources["inference_time"].get_value())
+        if len(resources["cycle_time"].get_value()) > 0:
+            tmp["cycle_time"] = sum(resources["cycle_time"].get_value()) / len(resources["cycle_time"].get_value())
+        if len(resources["confidence"].get_value()) > 0:
+            tmp["confidence"] = sum(resources["confidence"].get_value()) / len(resources["confidence"].get_value())
+        if len(resources["cosine_similarity"].get_value()) > 0:
+            tmp["cosine_similarity"] = sum(resources["cosine_similarity"].get_value()) / len(resources["cosine_similarity"].get_value())
         tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
         if tmp["sum_inference_time"] != 0:
-            tmp["cobot_inactivity_factor"] = tmp["sum_cycle_time"] / tmp["sum_inference_time"]
+            tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
         tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
@@ -237,20 +249,30 @@ class MqttTelemetryCollector:
         tmp = {}
         lista = []
 
-        for resource in resources:
+        tmp["sum_inference_time"] = resources["sum_inference_time"].get_value()
+        tmp["sum_cycle_time"] = resources["sum_cycle_time"].get_value()
+        tmp["object_type"] = resources["object_type"].get_value()
+        tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
+        tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
+        if len(resources["inference_time"].get_value()) > 0:
             sign = random.choice([-1, 1])
             p_value = random.random() * random.randint(0, 20)
-            if resources[resource].get_unit()[0] != "B" and resources[resource].get_value() + (p_value * sign) >= 0:
-                if resources[resource].get_unit()[0] != "%":
-                    tmp[resource] = round(resources[resource].get_value() + (p_value * sign))
-                else:
-                    tmp[resource] = resources[resource].get_value() + (p_value * sign)
-            else:
-                tmp[resource] = resources[resource].get_value()
-
+            tmp["inference_time"] = sum(resources["inference_time"].get_value()) / len(resources["inference_time"].get_value()) + (p_value * sign)
+        if len(resources["cycle_time"].get_value()) > 0:
+            sign = random.choice([-1, 1])
+            p_value = random.random() * random.randint(0, 20)
+            tmp["cycle_time"] = sum(resources["cycle_time"].get_value()) / len(resources["cycle_time"].get_value()) + (p_value * sign)
+        if len(resources["confidence"].get_value()) > 0:
+            sign = random.choice([-1, 1])
+            p_value = random.random() * random.randint(0, 20)
+            tmp["confidence"] = (sum(resources["confidence"].get_value()) / len(resources["confidence"].get_value())) + (p_value * sign)
+        if len(resources["cosine_similarity"].get_value()) > 0:
+            sign = random.choice([-1, 1])
+            p_value = random.random() * random.randint(0, 20)
+            tmp["cosine_similarity"] = (sum(resources["cosine_similarity"].get_value()) / len(resources["cosine_similarity"].get_value())) + (p_value * sign)
         tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
         if tmp["sum_inference_time"] != 0:
-            tmp["cobot_inactivity_factor"] = tmp["sum_cycle_time"] / tmp["sum_inference_time"]
+            tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
         tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
