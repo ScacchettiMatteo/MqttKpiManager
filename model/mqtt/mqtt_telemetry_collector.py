@@ -197,7 +197,18 @@ class MqttTelemetryCollector:
         elif self._resources_dict[resource_name].get_operation() == 'mean':
             self._resources_dict[resource_name].get_value().append(resource.get_value())
         elif self._resources_dict[resource_name].get_operation() == 'assign':
-            self._resources_dict[resource_name].set_value(resource.get_value())
+            if resource_name != "plc_cycle_time_tmp":
+                self._resources_dict[resource_name].set_value(resource.get_value())
+            else:
+                if self._resources_dict[resource_name].get_value() == 0:
+                    self._resources_dict[resource_name].set_value(resource.get_value())
+                else:
+                    if resource.get_value() != 0:
+                        if resource.get_value() > self._resources_dict["plc_cycle_time_tmp"].get_value():
+                            self._resources_dict[resource_name].set_value(resource.get_value())
+                    else:
+                        self._resources_dict["plc_cycle_time"].set_value(self._resources_dict["plc_cycle_time"].get_value() + self._resources_dict[resource_name].get_value())
+                        self._resources_dict[resource_name].set_value(0)
         elif self._resources_dict[resource_name].get_operation() == 'double_mean':
             self._resources_dict[resource_name].get_value().append((sum(resource.get_value()) / len(resource.get_value())))
 
@@ -219,6 +230,7 @@ class MqttTelemetryCollector:
         tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
         tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
         tmp["plc_daily_done_bags"] = resources["plc_daily_done_bags"].get_value()
+        tmp["plc_cycle_time"] = resources["plc_cycle_time"].get_value()
         if len(resources["inference_time"].get_value()) > 0:
             tmp["inference_time"] = sum(resources["inference_time"].get_value()) / len(resources["inference_time"].get_value())
         if len(resources["cycle_time"].get_value()) > 0:
@@ -231,7 +243,7 @@ class MqttTelemetryCollector:
             tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
-        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+        tmp["plant_inactivity_factor"] = (tmp["plc_cycle_time"] * 100) / self._timer
         tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
         lista.append(tmp)
@@ -255,6 +267,7 @@ class MqttTelemetryCollector:
         tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
         tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
         tmp["plc_daily_done_bags"] = resources["plc_daily_done_bags"].get_value()
+        tmp["plc_cycle_time"] = resources["plc_cycle_time"].get_value()
         if len(resources["inference_time"].get_value()) > 0:
             sign = random.choice([-1, 1])
             p_value = random.random() * random.randint(0, 20)
@@ -275,7 +288,7 @@ class MqttTelemetryCollector:
             tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
-        tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+        tmp["plant_inactivity_factor"] = tmp["plc_cycle_time"] / self._timer
         tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
         lista.append(tmp)

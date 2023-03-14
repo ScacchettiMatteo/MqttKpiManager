@@ -79,13 +79,23 @@ resources:
     qos: 2
     operation: 'assign'
     value: 0
-  plc_cycle_time:
-    uuid: "plc_daily_done_bags"
+  plc_cycle_time_tmp:
+    uuid: "plc_cycle_time_tmp"
     version: 1
     device: "Conveyor"
-    name: [ "plc_daily_done_bags" ]
+    name: [ "plc_cycle_time_tmp" ]
     unit: [ "count" ]
-    topic: "conveyor/states/cycle/actual_unloaded_objects/telemetry"
+    topic: "conveyor/states/cycle/cycle_time/telemetry"
+    qos: 2
+    operation: 'assign'
+    value: 0
+  plc_cycle_time:
+    uuid: "plc_cycle_time"
+    version: 1
+    device: "Conveyor"
+    name: [ "plc_cycle_time" ]
+    unit: [ "count" ]
+    topic: "conveyor/states/cycle/cycle_time/temp"
     qos: 2
     operation: 'assign'
     value: 0
