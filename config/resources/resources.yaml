@@ -29,16 +29,6 @@ resources:
     qos: 2
     operation: 'mean'
     value: []
-  sum_cycle_time:
-    uuid: "sum_cycle_time"
-    version: 1
-    device: "Production"
-    name: ["sum_cycle_time"]
-    unit: ["count"]
-    topic: "production/cycle/time/telemetry"
-    qos: 2
-    operation: 'sum'
-    value: 0
   object_type:
     uuid: "object_type"
     version: 1
@@ -79,15 +69,15 @@ resources:
     qos: 2
     operation: 'mean'
     value: []
-  sum_inference_time:
-    uuid: "sum_inference_time"
+  plc_daily_done_bags:
+    uuid: "plc_daily_done_bags"
     version: 1
-    device: "AIonEdge"
-    name: [ "sum_inference_time" ]
+    device: "Conveyor"
+    name: [ "plc_daily_done_bags" ]
     unit: [ "count" ]
-    topic: "ai_on_edge/inference/time/telemetry"
+    topic: "conveyor/states/cycle/actual_unloaded_objects/telemetry"
     qos: 2
-    operation: 'sum'
+    operation: 'assign'
     value: 0
   plc_daily_done_bags:
     uuid: "plc_daily_done_bags"

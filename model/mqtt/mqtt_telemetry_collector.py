@@ -16,7 +16,7 @@ from utils.senml.SenML_Pack import SenMLPack
 
 
 class MqttTelemetryCollector:
-    _timer = 60
+    _timer = 90
     _first_confidence = True
     _first_cosine_similarity = True
     _STR_DEVICE = "Kpi_Fum_Lab"
@@ -152,7 +152,7 @@ class MqttTelemetryCollector:
             logging.error(str(e))
             raise MqttClientConnectionError("Error during mqtt client connection") from None
         Thread(target=self.publish_message).start()
-        #Thread(target=self.publish_simulated_message).start()
+        Thread(target=self.publish_simulated_message).start()
         self._mqtt_client.loop_forever()
 
     def set_client_id(self, client_id):
@@ -204,20 +204,21 @@ class MqttTelemetryCollector:
     def publish_message(self, retained=False):
         while True:
             time.sleep(self._timer)
-            payload = self._resources_dict
-            self._resources_dict = ResourcesMapper().get_resources()
+            payload = self._resources_dict.copy()
             self._mqtt_publisher.publish_message(self.get_kpi_dict(payload, self._STR_DEVICE), retained)
+            self._resources_dict = ResourcesMapper().get_resources()
 
     def get_kpi_dict(self, resources, device):
         kpi_dict = {}
         tmp = {}
         lista = []
 
-        tmp["sum_inference_time"] = resources["sum_inference_time"].get_value()
-        tmp["sum_cycle_time"] = resources["sum_cycle_time"].get_value()
+        tmp["sum_inference_time"] = sum(resources["inference_time"].get_value())
+        tmp["sum_cycle_time"] = sum(resources["cycle_time"].get_value())
         tmp["object_type"] = resources["object_type"].get_value()
         tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
         tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
+        tmp["plc_daily_done_bags"] = resources["plc_daily_done_bags"].get_value()
         if len(resources["inference_time"].get_value()) > 0:
             tmp["inference_time"] = sum(resources["inference_time"].get_value()) / len(resources["inference_time"].get_value())
         if len(resources["cycle_time"].get_value()) > 0:
@@ -226,12 +227,12 @@ class MqttTelemetryCollector:
             tmp["confidence"] = sum(resources["confidence"].get_value()) / len(resources["confidence"].get_value())
         if len(resources["cosine_similarity"].get_value()) > 0:
             tmp["cosine_similarity"] = sum(resources["cosine_similarity"].get_value()) / len(resources["cosine_similarity"].get_value())
-        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
-        if tmp["sum_inference_time"] != 0:
+        if tmp["sum_cycle_time"] != 0:
             tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
         tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
         lista.append(tmp)
         kpi_dict[device] = lista
@@ -240,8 +241,7 @@ class MqttTelemetryCollector:
     def publish_simulated_message(self, retained=False):
         while True:
             time.sleep(self._timer)
-            payload = self._resources_dict
-            self._resources_dict = ResourcesMapper().get_resources()
+            payload = self._resources_dict.copy()
             self._mqtt_publisher.publish_message(self.get_kpi_dict_simulated(payload, self._STR_DEVICE_TEST), retained)
 
     def get_kpi_dict_simulated(self, resources, device):
@@ -249,11 +249,12 @@ class MqttTelemetryCollector:
         tmp = {}
         lista = []
 
-        tmp["sum_inference_time"] = resources["sum_inference_time"].get_value()
-        tmp["sum_cycle_time"] = resources["sum_cycle_time"].get_value()
+        tmp["sum_inference_time"] = sum(resources["inference_time"].get_value())
+        tmp["sum_cycle_time"] = sum(resources["cycle_time"].get_value())
         tmp["object_type"] = resources["object_type"].get_value()
         tmp["daily_done_bags"] = resources["daily_done_bags"].get_value()
         tmp["daily_placed_objects"] = resources["daily_placed_objects"].get_value()
+        tmp["plc_daily_done_bags"] = resources["plc_daily_done_bags"].get_value()
         if len(resources["inference_time"].get_value()) > 0:
             sign = random.choice([-1, 1])
             p_value = random.random() * random.randint(0, 20)
@@ -270,12 +271,12 @@ class MqttTelemetryCollector:
             sign = random.choice([-1, 1])
             p_value = random.random() * random.randint(0, 20)
             tmp["cosine_similarity"] = (sum(resources["cosine_similarity"].get_value()) / len(resources["cosine_similarity"].get_value())) + (p_value * sign)
-        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
-        if tmp["sum_inference_time"] != 0:
+        if tmp["sum_cycle_time"] != 0:
             tmp["cobot_inactivity_factor"] = (tmp["sum_inference_time"] * 100) / tmp["sum_cycle_time"]
         else:
             tmp["cobot_inactivity_factor"] = 0
         tmp["plant_inactivity_factor"] = tmp["sum_cycle_time"] / self._timer
+        tmp["cadence_production_line"] = tmp["daily_done_bags"] / self._timer
 
         lista.append(tmp)
         kpi_dict[device] = lista
